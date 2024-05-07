@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc && cp -R public/. dist/public/",
     "start:dev": "nodemon src/app.ts",
-    "start": "node --env-file=.env dist/app.js"
+    "start": "node dist/src/app.js"
   },
   "author": "Elkanaria",
   "license": "ISC",
