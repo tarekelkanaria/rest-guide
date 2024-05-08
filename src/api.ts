@@ -1,18 +1,17 @@
-import express, {
-  type NextFunction,
-  type Request,
-  type Response,
-} from "express";
+import express from "express";
+
 import bodyParser from "body-parser";
 import path from "path";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import helmet from "helmet";
+import serverless from "serverless-http";
 import compression from "compression";
 import multer, { type FileFilterCallback } from "multer";
 import feedRoutes from "./routes/feed";
 import authRoutes from "./routes/auth";
 import { MONGODB_URI, PORT } from "./utils/secrets";
+import type { NextFunction, Request, Response } from "express";
 
 const app = express();
 
@@ -70,6 +69,9 @@ app.use((req, res, next) => {
 
 app.use("/feed", feedRoutes);
 app.use("/auth", authRoutes);
+app.get("/", (req, res) => {
+  res.json({ start: "Home Page" });
+});
 
 app.use(
   (
@@ -85,7 +87,16 @@ app.use(
   }
 );
 
-mongoose
-  .connect(MONGODB_URI)
-  .then(() => app.listen(PORT || 3000))
-  .catch((err) => console.log(err));
+try {
+  await mongoose.connect(MONGODB_URI);
+  app.listen(PORT || 3000);
+} catch (err) {
+  console.log(err);
+}
+
+// mongoose
+//   .connect(MONGODB_URI)
+//   .then(() => app.listen(PORT || 3000))
+//   .catch((err) => console.log(err));
+
+export const handler = serverless(app);

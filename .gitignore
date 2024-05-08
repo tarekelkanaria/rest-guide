@@ -2,4 +2,4 @@ node_modules
 .env
 nodemon.json
 vercel.json
-netlify.toml
+functions
