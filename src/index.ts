@@ -1,11 +1,9 @@
 import express from "express";
-
 import bodyParser from "body-parser";
 import path from "path";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import helmet from "helmet";
-import serverless from "serverless-http";
 import compression from "compression";
 import multer, { type FileFilterCallback } from "multer";
 import feedRoutes from "./routes/feed";
@@ -67,10 +65,14 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get("/api", (req, res) => {
+  res.status(200).json({ start: "home" });
+});
 app.use("/feed", feedRoutes);
 app.use("/auth", authRoutes);
+
 app.get("/", (req, res) => {
-  res.json({ start: "Home Page" });
+  res.send("<html><body><h1>Home Page</h1></body></html>");
 });
 
 app.use(
@@ -81,22 +83,18 @@ app.use(
     next: NextFunction
   ) => {
     console.log(error);
-    const status = error.statusCode || 500;
-    const message = error.message;
-    res.status(status).json({ message });
+    if (error) {
+      const status = error.statusCode || 500;
+      const message = error.message;
+      return res.status(status).json({ message });
+    }
+    res.status(404).json({ message: "404 Not Found" });
   }
 );
 
-try {
-  await mongoose.connect(MONGODB_URI);
-  app.listen(PORT || 3000);
-} catch (err) {
-  console.log(err);
-}
-
-// mongoose
-//   .connect(MONGODB_URI)
-//   .then(() => app.listen(PORT || 3000))
-//   .catch((err) => console.log(err));
-
-export const handler = serverless(app);
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => app.listen(PORT || 3000))
+  .catch((err) => {
+    console.log(err);
+  });

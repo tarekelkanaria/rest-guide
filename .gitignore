@@ -3,3 +3,6 @@ node_modules
 nodemon.json
 vercel.json
 functions
+netlify.toml
+.babelrc
+.vercel
